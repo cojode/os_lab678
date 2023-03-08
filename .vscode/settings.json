@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.check": "c",
+        "pool.h": "c"
+    }
+}
