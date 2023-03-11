@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef COMMON_STRUCT_NODE_H
+#define COMMON_STRUCT_NODE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,4 +19,4 @@ int remove_node(Node *root_node, int id);
 void print_tree_recursive(Node *node, int level);
 void print_tree(Node *root_node);
 
-#endif  // NODE_H
+#endif  // COMMON_STRUCT_NODE_H
