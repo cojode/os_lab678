@@ -2,26 +2,20 @@
 
 const char *CLIENT_PATH = "../../bin/child";
 
-int register_node(int parent_id, int child_id);
-
-void create_handler(Pool *pool, int id, int parent_id, void *context,
-                    void **son_pusher) {
-  switch (add_node(pool->root_node, id, parent_id)) {
-    case 0:
-      printf("%s %s %s\n", ROOT_PREFIX, OK_PREFIX, MSG_NODE_CHECKED);
-      if (parent_id == ROOT_ID) {
-        register_node(ROOT_ID, id);
-        *son_pusher = init_socket(context, id, ZMQ_PUSH);
-      } else {
-        send_message(son_pusher, "create", 7);
-      }
-      break;
-    case 1:
-      printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_ALREADY_EXISTS);
-      break;
-    case 2:
-      printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NO_PARENT);
-      break;
+void create_handler(int id, int child_id, int param_parent_id, void *context,
+                    void **son_pusher, void *sibling_pusher, char *buffer,
+                    size_t size) {
+  if (param_parent_id == id) {
+    register_node(param_parent_id, child_id);
+    if (*son_pusher) {
+      char msg[100];
+      sprintf(msg, "sibling %d", child_id);
+      send_message(*son_pusher, msg, sizeof(msg));
+    } else {
+      *son_pusher = init_socket(context, child_id, ZMQ_PUSH);
+    }
+  } else {
+    pass_cmd_down(sibling_pusher, *son_pusher, buffer, size);
   }
 }
 

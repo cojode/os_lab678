@@ -25,6 +25,7 @@ Node *find_node_by_id(Node *root_node, int id) {
 }
 
 int add_node(Node *root_node, int id, int parent_id) {
+  if (!root_node) return 0;
   if (find_node_by_id(root_node, id)) return 1;
   Node *parent = find_node_by_id(root_node, parent_id);
   if (!parent) return 2;
@@ -54,6 +55,7 @@ int remove_node(Node *root_node, int id) {
   while (last_son->sibling) last_son = last_son->sibling;
   last_son->sibling = poor_children;
   free(r_node);
+  return 0;
 }
 
 void print_tree_recursive(Node *node, int level) {

@@ -9,8 +9,6 @@ extern const int ROOT_ID;
 extern const int SRC_PORT;
 extern const char SOCKET_PATTERN[];
 
-enum CMD_CODES { EXIT = -1, UNKNOWN, CREATE, REMOVE, EXECUTE, PING, LS };
-
 // typedef struct _msg {
 //   int cmd;
 //   int id;
@@ -20,7 +18,8 @@ enum CMD_CODES { EXIT = -1, UNKNOWN, CREATE, REMOVE, EXECUTE, PING, LS };
 
 char *solve_address(int id);
 void *init_socket(void *context, int id, int type);
-void send_message(void *pusher, char *buffer, size_t size);
-int recieve_message(void *puller, char *buffer);
+int send_message(void *pusher, char *buffer, size_t size);
+void pass_cmd_down(void *sibling_pusher, void *son_pusher, char *buffer,
+                   size_t size);
 
 #endif  // UTIL_ZMQ_HELPERS

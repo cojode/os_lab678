@@ -25,20 +25,16 @@ void *init_socket(void *context, int id, int type) {
   return socket;
 }
 
-void send_message(void *pusher, char *buffer, size_t size) {
+int send_message(void *pusher, char *buffer, size_t size) {
   if (zmq_send(pusher, buffer, size, ZMQ_DONTWAIT) == -1) {
     perror("zmq_send");
-  } else {
-    printf("Sended %s\n", buffer);
+    return 0;
   }
+  return 1;
 }
 
-int recieve_message(void *puller, char *buffer) {
-  if (zmq_recv(puller, buffer, sizeof(buffer), ZMQ_DONTWAIT) != -1) {
-    printf("[%s]", buffer);
-    return 1;
-  } else {
-    perror("recv err");
-    return -1;
-  }
+void pass_cmd_down(void *sibling_pusher, void *son_pusher, char *buffer,
+                   size_t size) {
+  if (sibling_pusher) send_message(sibling_pusher, buffer, size);
+  if (son_pusher) send_message(son_pusher, buffer, size);
 }

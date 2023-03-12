@@ -1,4 +1,4 @@
-#include "../struct/node.h"
+#include "../common/struct/node.h"
 
 int main() {
   Node *tree = init_node(-1, NULL, NULL, NULL);

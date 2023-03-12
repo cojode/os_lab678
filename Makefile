@@ -1,6 +1,6 @@
 SERVER=server/server.c
 STRUCT=$(wildcard common/struct/*.c)
-CMDS=$(wildcard handlers/commands/*.c)
+CMDS=handlers/commands_handler.c $(wildcard handlers/commands/*.c) 
 UTIL=common/util/zmq_helpers.c
 CLIENT=client/child.c
 MSG=config/msg.c
@@ -13,14 +13,14 @@ all: clean bin/client bin/server
 	./bin/server
 
 bin/server:
-	gcc $(SERVER) $(SRCS) -o $(BIN_SERVER) $(ZMQ_FLAGS)
+	gcc $(SERVER) $(SRCS) -o $(BIN_SERVER) $(ZMQ_FLAGS) -g
 
 bin/client:
-	gcc $(CLIENT) $(SRCS) -o $(BIN_CLIENT) $(ZMQ_FLAGS)
+	gcc $(CLIENT) $(SRCS) -o $(BIN_CLIENT) $(ZMQ_FLAGS) -g
 
 clean:
 	rm -f bin/*
 
 test_tree:
-	gcc struct/node.c test/test_node.c -o bin/test
+	gcc common/struct/node.c test/test_node.c -o bin/test
 	./bin/test
