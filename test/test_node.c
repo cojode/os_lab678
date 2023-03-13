@@ -23,17 +23,26 @@ int main() {
             break;
         }
         break;
-        case 3: {
-          scanf("%d", &id);
-          switch (remove_node(tree, id)) {
-            case 0:
-              printf("OK\n");
-              break;
-            case 1:
-              printf("no such node: %d\n", id);
-              break;
-          }
+      }
+      case 3: {
+        scanf("%d", &id);
+        switch (remove_node(tree, id)) {
+          case 0:
+            printf("OK\n");
+            break;
+          case 1:
+            printf("no such node: %d\n", id);
+            break;
         }
+        break;
+      }
+      case 4: {
+        scanf("%d", &id);
+        Node *neighbour = find_neighbour(tree, id);
+        if (!neighbour)
+          printf("no\n");
+        else
+          printf("%d", neighbour->id);
       }
     }
   }

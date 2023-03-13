@@ -22,5 +22,5 @@ clean:
 	rm -f bin/*
 
 test_tree:
-	gcc common/struct/node.c test/test_node.c -o bin/test
+	gcc common/struct/node.c test/test_node.c -o bin/test -g
 	./bin/test

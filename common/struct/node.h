@@ -13,6 +13,9 @@ typedef struct _node {
 
 Node *init_node(int id, Node *parent, Node *sibling, Node *son);
 Node *find_node_by_id(Node *root_node, int id);
+Node *find_neighbour(Node *root_node, int id);
+int swap_nodes(Node *root_node, int id_a, int id_b);
+int is_leaf(Node *root_node, int id);
 int add_node(Node *root_node, int id, int parent_id);
 void clear_node(Node *root_node);
 int remove_node(Node *root_node, int id);

@@ -4,7 +4,9 @@
         "pool.h": "c",
         "commands_handlers.h": "c",
         "node.h": "c",
-        "commands.h": "c"
+        "commands.h": "c",
+        "executor": "c",
+        "io_context": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

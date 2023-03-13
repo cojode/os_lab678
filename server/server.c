@@ -21,6 +21,7 @@ int main() {
   while (1) {
     int param_id, param_parent_id;
     char cmd[MAX_CMD_LENGTH];
+    char subcommand[MAX_CMD_LENGTH];
     char buffer[BUFFER_SIZE];
     printf(ROOT_AWAIT_CMD_PREFIX);
     fgets(buffer, sizeof(buffer), stdin);
@@ -35,7 +36,7 @@ int main() {
         break;
       }
       case CREATE: {
-        sscanf(buffer, "%s %d %d", &cmd, &param_id, &param_parent_id);
+        sscanf(buffer, "%s %d %d", cmd, &param_id, &param_parent_id);
         switch (add_node(pool->root_node, param_id, param_parent_id)) {
           case 0:
             // ! ping
@@ -53,25 +54,45 @@ int main() {
         break;
       }
       case REMOVE: {
-        // sscanf(buffer, "%s %d", &cmd, &param_id);
-        // switch (remove_node(pool->root_node, param_id)) {
-        //   case 0:
-        //     if (param_id == id) {
-        //       printf(OK_PREFIX);
-        //       return 0;
-        //     }
-        //     send_message(son_pusher, buffer, sizeof(buffer));
-        //   case 1:
-        //     printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
-        //     break;
-        // }
-        // break;
+        sscanf(buffer, "%s %d", cmd, &param_id);
+        switch (remove_node(pool->root_node, param_id)) {
+          case 0:
+            if (param_id == id) {
+              printf("%s", OK_PREFIX);
+              return 0;
+            }
+            send_message(son_pusher, buffer, sizeof(buffer));
+          case 1:
+            printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
+            break;
+        }
+        break;
       }
       case EXECUTE: {
+        sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
+        if (!find_node_by_id(pool->root_node, param_id)) {
+          printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
+          break;
+        }
+        switch (solve_subcmd(buffer)) {
+          case UNKNOWN:
+            printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_UNKNOWN_CMD);
+            break;
+          default:
+            send_message(son_pusher, buffer, sizeof(buffer));
+            zmq_sleep(PING_TIMEOUT);
+            if (zmq_recv(puller, buffer, sizeof(buffer), ZMQ_DONTWAIT) != -1) {
+              printf("%s %s\n", ROOT_PREFIX, buffer);
+            } else {
+              printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_UNAVAILABLE);
+            }
+
+            break;
+        }
         break;
       }
       case PING: {
-        sscanf(buffer, "%s %d", &cmd, &param_id);
+        sscanf(buffer, "%s %d", cmd, &param_id);
         if (!find_node_by_id(pool->root_node, param_id)) {
           printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
           break;

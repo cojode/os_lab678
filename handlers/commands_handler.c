@@ -13,3 +13,13 @@ int solve_cmd(char *buffer) {
   if (!strcmp("discard", cmd)) return DISCARD;
   return UNKNOWN;
 }
+
+int solve_subcmd(char *buffer) {
+  char cmd[100], subcmd[100];
+  int id;
+  sscanf(buffer, "%s %d %s", cmd, &id, subcmd);
+  if (!strcmp("start", subcmd)) return START;
+  if (!strcmp("stop", subcmd)) return STOP;
+  if (!strcmp("time", subcmd)) return TIME;
+  return UNKNOWN;
+}
