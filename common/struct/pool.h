@@ -13,9 +13,12 @@
 typedef struct _pool {
   Node *root_node;
   void *root_respond;
+  int nodes[1000];
+  int nodes_count;
 } Pool;
 
 Pool *init_pool();
 int child_to_pool(Pool *p, int child_id, int parent_id);
+int child_from_pool(Pool *p, int id);
 
 #endif  // COMMON_STRUCT_POOL_H

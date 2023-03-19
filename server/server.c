@@ -37,7 +37,7 @@ int main() {
       }
       case CREATE: {
         sscanf(buffer, "%s %d %d", cmd, &param_id, &param_parent_id);
-        switch (add_node(pool->root_node, param_id, param_parent_id)) {
+        switch (child_to_pool(pool, param_id, param_parent_id)) {
           case 0:
             // ! ping
             create_handler(ROOT_ID, param_id, param_parent_id, context,
@@ -54,7 +54,7 @@ int main() {
       }
       case REMOVE: {
         sscanf(buffer, "%s %d", cmd, &param_id);
-        switch (remove_node(pool->root_node, param_id)) {
+        switch (child_from_pool(pool, param_id)) {
           case 0:
             if (param_id == id) {
               printf("%s", OK_PREFIX);
@@ -113,11 +113,36 @@ int main() {
           printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
           break;
         }
-        ping_handler(param_id, puller, son_pusher, buffer, sizeof(buffer));
+        printf(
+            "%s %s %d\n", ROOT_PREFIX, OK_PREFIX,
+            ping_handler(param_id, puller, son_pusher, buffer, sizeof(buffer)));
         break;
       }
       case LS: {
         print_tree(pool->root_node);
+        break;
+      }
+      case PINGALL: {
+        int no_response[100], len_nr = 0;
+        for (int i = 0; i < pool->nodes_count; ++i) {
+          char msg[100];
+          sprintf(msg, "ping %d", pool->nodes[i]);
+          if (!ping_handler(pool->nodes[i], puller, son_pusher, msg,
+                            sizeof(msg))) {
+            no_response[len_nr] = pool->nodes[i];
+            len_nr++;
+          }
+        }
+        if (len_nr) {
+          printf("%s %s", ROOT_PREFIX, OK_PREFIX);
+          for (int i = 0; i < len_nr; ++i) {
+            printf("%d", no_response[i]);
+            if (i != len_nr - 1) putchar(';');
+          }
+          putchar('\n');
+        } else {
+          printf("%s %s -1\n", ROOT_PREFIX, OK_PREFIX);
+        }
         break;
       }
     }

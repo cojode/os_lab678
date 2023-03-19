@@ -15,7 +15,8 @@ enum CMD_CODES {
   LS,
   SIBLING,
   DISCARD,
-  KICK
+  KICK,
+  PINGALL
 };
 
 enum SUBCMD_CODES { START = 1, STOP, TIME };
@@ -23,8 +24,8 @@ enum SUBCMD_CODES { START = 1, STOP, TIME };
 void create_handler(int id, int child_id, int param_parent_id, void *context,
                     void **son_pusher, int *son_id, void *sibling_pusher,
                     char *buffer, size_t size);
-void ping_handler(int param_id, void *puller, void *son_pusher, char *buffer,
-                  size_t size);
+int ping_handler(int param_id, void *puller, void *son_pusher, char *buffer,
+                 size_t size);
 void discard_handler(int param_id, int param_son_id, int sibling_id,
                      int *son_id, void *context, void **son_pusher);
 void kick_handler(int param_id, int param_sibling_id, int *sibling_id,
