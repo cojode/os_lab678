@@ -44,6 +44,15 @@ int main() {
         else
           printf("%d", neighbour->id);
       }
+      case 5: {
+        scanf("%d %d", &parent_id, &id);
+        if (is_parent(tree, parent_id, id)) {
+          printf("Yes\n");
+        } else {
+          printf("No\n");
+        }
+        break;
+      }
     }
   }
   return 0;

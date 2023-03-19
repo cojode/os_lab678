@@ -11,6 +11,7 @@ int solve_cmd(char *buffer) {
   if (!strcmp("ls", cmd)) return LS;
   if (!strcmp("sibling", cmd)) return SIBLING;
   if (!strcmp("discard", cmd)) return DISCARD;
+  if (!strcmp("kick", cmd)) return KICK;
   return UNKNOWN;
 }
 

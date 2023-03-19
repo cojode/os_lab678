@@ -57,44 +57,47 @@ void clear_node(Node *root_node) {
 }
 
 int remove_node(Node *root_node, int id) {
+  if (root_node->id == id) return 2;
   Node *r_node = find_node_by_id(root_node, id);
-
   if (!r_node) return 1;
-
-  while (!is_leaf(root_node, id)) {
-    if (r_node->son) {
-      swap_nodes(root_node, r_node->id, r_node->son->id);
-      r_node = r_node->son;
+  Node *parent = r_node->parent, *connected_sibling = NULL;
+  if (r_node->son) {
+    if (parent->son == r_node) {
+      parent->son = r_node->son;
+      connected_sibling = sibling_search(r_node->son, NULL, parent);
+      connected_sibling->sibling = r_node->sibling;
+    } else {
+      connected_sibling = sibling_search(parent->son, r_node, NULL);
+      connected_sibling->sibling = r_node->son;
+      connected_sibling = sibling_search(parent->son, NULL, parent);
+      connected_sibling->sibling = r_node->sibling;
     }
-    if (r_node->sibling) {
-      swap_nodes(root_node, r_node->id, r_node->sibling->id);
-      r_node = r_node->sibling;
+  } else {
+    if (parent->son == r_node) {
+      parent->son = r_node->sibling;
+    } else {
+      connected_sibling = sibling_search(parent->son, r_node, NULL);
+      connected_sibling->sibling = r_node->sibling;
     }
   }
-  print_tree(root_node);
-
   free(r_node);
-
   return 0;
+}
+
+Node *sibling_search(Node *first_sibling, Node *search, Node *new_parent) {
+  Node *current_sibling = first_sibling;
+  if (new_parent) current_sibling->parent = new_parent;
+  while (current_sibling && current_sibling->sibling != search) {
+    current_sibling = current_sibling->sibling;
+    if (new_parent) current_sibling->parent = new_parent;
+  }
+  return current_sibling;
 }
 
 int is_leaf(Node *root_node, int id) {
   Node *node = find_node_by_id(root_node, id);
   if (!node) return 0;
   return !(node->sibling || node->son);
-}
-
-int swap_nodes(Node *root_node, int id_a, int id_b) {
-  Node *node_a = find_node_by_id(root_node, id_a);
-  Node *node_b = find_node_by_id(root_node, id_b);
-
-  if (!(node_a && node_b)) return 1;
-  printf("swap %d with %d\n", node_a->id, node_b->id);
-  int tmp = node_a->id;
-  node_a->id = node_b->id;
-  node_b->id = tmp;
-
-  return 0;
 }
 
 void print_tree_recursive(Node *node, int level) {
@@ -112,3 +115,17 @@ void print_tree_recursive(Node *node, int level) {
 }
 
 void print_tree(Node *root_node) { print_tree_recursive(root_node, 0); }
+
+int is_parent(Node *root_node, int parent_id, int node_id) {
+  Node *parent = find_node_by_id(root_node, parent_id),
+       *node = find_node_by_id(root_node, node_id);
+  if (parent && node) {
+    if (parent->son == node) return 1;
+    Node *search = parent->son;
+    while (search) {
+      search = search->sibling;
+      if (search == node) return 1;
+    }
+  }
+  return 0;
+}

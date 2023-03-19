@@ -15,10 +15,12 @@ const char ERR_NO_PARENT[] = "Parent not found";
 const char ERR_PARENT_UNREACHABLE[] = "Parent is unavailable";
 const char ERR_NOT_FOUND[] = "Not found";
 const char ERR_UNAVAILABLE[] = "Node is unavailable";
+const char ERR_REMOVE_ROOT[] = "Trying to remove root node - aborted";
 
 // * How long ping needs to wait for node to reply in seconds?
 const int PING_TIMEOUT = 1;
-// * How long child should recheck thier puller for messages in seconds?
+// * How fast child should recheck thier puller for messages in seconds?
+// * 0 - no delay
 const int RECV_TIMEOUT = 0;
 
 const int BUFFER_SIZE = 1000;

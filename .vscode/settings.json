@@ -6,7 +6,12 @@
         "node.h": "c",
         "commands.h": "c",
         "executor": "c",
-        "io_context": "c"
+        "io_context": "c",
+        "zmq_helpers.h": "c",
+        "msg.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

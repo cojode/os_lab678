@@ -6,7 +6,8 @@
 void imalive(int id);
 
 int main(int argc, char *argv[]) {
-  int id = atoi(argv[1]), parent_id = atoi(argv[2]);
+  int id = atoi(argv[1]), parent_id = atoi(argv[2]), son_id = ROOT_ID,
+      sibling_id = ROOT_ID;
   void *context = zmq_ctx_new();
   void *puller = init_socket(context, id, ZMQ_PULL);
   void *parent_pusher = init_socket(context, parent_id, ZMQ_PUSH);
@@ -17,7 +18,7 @@ int main(int argc, char *argv[]) {
   imalive(id);
   char buffer[1000];
   char subcommand[1000], cmd[1000];
-  int size = 0, param_id, param_parent_id;
+  int size = 0, param_id, param_parent_id, param_sibling_id, param_son_id;
 
   clock_t timer_start, timer_stop;
 
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]) {
       switch (solve_cmd(buffer)) {
         case EXIT: {
           printf("%s %s\n", ROOT_PREFIX, MSG_EXIT_SIGNAL_START);
-          printf(MSG_EXIT_SIGNAL_COMPLETE);
+          printf("%s", MSG_EXIT_SIGNAL_COMPLETE);
           return 1;
         }
         case UNKNOWN: {
@@ -40,55 +41,43 @@ int main(int argc, char *argv[]) {
         case CREATE: {
           sscanf(buffer, "%s %d %d", cmd, &param_id, &param_parent_id);
           create_handler(id, param_id, param_parent_id, context, &son_pusher,
-                         sibling_pusher, buffer, size);
+                         &son_id, sibling_pusher, buffer, size);
           break;
         }
         case REMOVE: {
+          sscanf(buffer, "%s %d", cmd, &param_id);
+          remove_handler(id, sibling_id, son_id, param_id, sibling_pusher,
+                         root_pusher, parent_pusher, son_pusher);
           break;
         }
         case EXECUTE: {
           sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
-          char msg[100];
-          if (param_id == id) {
-            switch (solve_subcmd(buffer)) {
-              case TIME:
-                sprintf(msg, "%s%d:%.0lf", OK_PREFIX, id,
-                        time_timer(timer_start, timer_stop));
-                send_message(root_pusher, msg, sizeof(msg));
-                break;
-              case START:
-                start_timer(&timer_start, &timer_stop);
-                sprintf(msg, "%s%d", OK_PREFIX, id);
-                send_message(root_pusher, msg, sizeof(msg));
-                break;
-              case STOP:
-                stop_timer(&timer_stop);
-                sprintf(msg, "%s%d", OK_PREFIX, id);
-                send_message(root_pusher, msg, sizeof(msg));
-                break;
-            }
-          } else {
-            if (sibling_pusher) send_message(sibling_pusher, buffer, size);
-            if (son_pusher) send_message(son_pusher, buffer, size);
-          }
+          execute_handler(id, param_id, buffer, root_pusher, sibling_pusher,
+                          son_pusher, &timer_start, &timer_stop);
           break;
         }
         case PING: {
           sscanf(buffer, "%s %d", cmd, &param_id);
-          if (param_id == id) {
-            send_message(root_pusher, "alive", 6);
-          } else {
-            if (sibling_pusher) send_message(sibling_pusher, buffer, size);
-            if (son_pusher) send_message(son_pusher, buffer, size);
-          }
+          ping_client_handler(id, param_id, root_pusher, sibling_pusher,
+                              son_pusher);
           break;
         }
         case SIBLING: {
           sscanf(buffer, "%s %d", cmd, &param_id);
-          if (sibling_pusher)
-            send_message(sibling_pusher, buffer, size);
-          else
-            sibling_pusher = init_socket(context, param_id, ZMQ_PUSH);
+          sibling_handler(param_id, &sibling_id, context, &sibling_pusher);
+          break;
+        }
+        case DISCARD: {
+          sscanf(buffer, "%s %d %d", cmd, &param_id, &param_son_id);
+          discard_handler(param_id, param_son_id, sibling_id, &son_id, context,
+                          &son_pusher);
+          break;
+        }
+        case KICK: {
+          sscanf(buffer, "%s %d %d", cmd, &param_id, &param_sibling_id);
+          kick_handler(param_id, param_sibling_id, &sibling_id, &sibling_pusher,
+                       context);
+          break;
         }
       }
     }

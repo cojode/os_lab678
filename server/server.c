@@ -14,7 +14,7 @@ int main() {
   // * In order to send message to other node, its connects to this node's
   // * address, holded by other node's puller, and transfer message to it
   void *son_pusher = NULL;
-  int id = ROOT_ID;
+  int id = ROOT_ID, pid, son_id = -1;
 
   Pool *pool = init_pool();
 
@@ -23,12 +23,12 @@ int main() {
     char cmd[MAX_CMD_LENGTH];
     char subcommand[MAX_CMD_LENGTH];
     char buffer[BUFFER_SIZE];
-    printf(ROOT_AWAIT_CMD_PREFIX);
+    printf("%s", ROOT_AWAIT_CMD_PREFIX);
     fgets(buffer, sizeof(buffer), stdin);
     switch (solve_cmd(buffer)) {
       case EXIT: {
         printf("%s %s\n", ROOT_PREFIX, MSG_EXIT_SIGNAL_START);
-        printf(MSG_EXIT_SIGNAL_COMPLETE);
+        printf("%s", MSG_EXIT_SIGNAL_COMPLETE);
         return 1;
       }
       case UNKNOWN: {
@@ -41,8 +41,7 @@ int main() {
           case 0:
             // ! ping
             create_handler(ROOT_ID, param_id, param_parent_id, context,
-                           &son_pusher, NULL, buffer, sizeof(buffer));
-
+                           &son_pusher, &son_id, NULL, buffer, sizeof(buffer));
             break;
           case 1:
             printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_ALREADY_EXISTS);
@@ -61,9 +60,26 @@ int main() {
               printf("%s", OK_PREFIX);
               return 0;
             }
-            send_message(son_pusher, buffer, sizeof(buffer));
+            if (is_parent(pool->root_node, ROOT_ID, param_id)) {
+              if (param_id == son_id) {
+                printf("Direct son\n");
+              } else {
+                printf("Indirect son\n");
+              }
+            } else {
+              printf("Not a son\n");
+              send_message(son_pusher, buffer, sizeof(buffer));
+              zmq_recv(puller, buffer, sizeof(buffer), 0);
+              sscanf(buffer, "%s %d", cmd, &pid);
+              printf("Killing %d\n", pid);
+              kill(pid, SIGKILL);
+            }
+            break;
           case 1:
             printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
+            break;
+          case 2:
+            printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_REMOVE_ROOT);
             break;
         }
         break;

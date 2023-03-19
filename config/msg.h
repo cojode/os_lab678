@@ -15,6 +15,7 @@ extern const char ERR_NO_PARENT[];
 extern const char ERR_PARENT_UNREACHABLE[];
 extern const char ERR_NOT_FOUND[];
 extern const char ERR_UNAVAILABLE[];
+extern const char ERR_REMOVE_ROOT[];
 
 extern const int PING_TIMEOUT;
 extern const int RECV_TIMEOUT;
