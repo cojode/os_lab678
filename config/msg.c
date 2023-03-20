@@ -18,7 +18,8 @@ const char ERR_UNAVAILABLE[] = "Node is unavailable";
 const char ERR_REMOVE_ROOT[] = "Trying to remove root node - aborted";
 const char ERR_HEARTBIT_RUNS[] =
     "Heartbit task already running - can`t create another";
-
+const char ERR_SUM_BAD_ARGS[] =
+    "Bad arguments: wrong number of ints or bad ints";
 // * How long ping needs to wait for node to reply in seconds?
 const int PING_TIMEOUT = 1;
 // * How fast child should recheck thier puller for messages in seconds?

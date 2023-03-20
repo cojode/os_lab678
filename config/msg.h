@@ -17,6 +17,7 @@ extern const char ERR_NOT_FOUND[];
 extern const char ERR_UNAVAILABLE[];
 extern const char ERR_REMOVE_ROOT[];
 extern const char ERR_HEARTBIT_RUNS[];
+extern const char ERR_SUM_BAD_ARGS[];
 
 extern const int PING_TIMEOUT;
 extern const int RECV_TIMEOUT;

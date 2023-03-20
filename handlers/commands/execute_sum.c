@@ -11,7 +11,7 @@ void execute_sum_handler(char *buffer, int id, void *root_pusher,
   if (id == param_id) {
     for (int i = 0; i < param_n; ++i) {
       if (!sscanf(buffer + pos, "%d%n", &num, &offset)) {
-        sprintf(msg, "Bad arguments: wrong number of ints or bad ints\n");
+        sprintf(msg, "%s", ERR_SUM_BAD_ARGS);
         send_message(root_pusher, msg, 100);
         return;
       }
