@@ -26,8 +26,8 @@ int main(int argc, char *argv[]) {
   while (1) {
     size = zmq_recv(puller, buffer, sizeof(buffer) + 2, ZMQ_DONTWAIT);
     if (size != -1) {
-      printf(NODE_PREFIX, id);
-      printf(" Recieved command: %s\n", buffer);
+      // printf(NODE_PREFIX, id);
+      // printf(" Recieved command: %s\n", buffer);
       switch (solve_cmd(buffer)) {
         case EXIT: {
           printf("%s %s\n", ROOT_PREFIX, MSG_EXIT_SIGNAL_START);
