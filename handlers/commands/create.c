@@ -27,7 +27,9 @@ int register_node(int parent_id, int child_id) {
   char *args[] = {"child", str_child_id, str_parent_id, NULL};
   int child_pid = fork();
   if (child_pid == 0) {
-    if (execvp("/home/cojod/work_dir/os/lab678/bin/child", args) == -1) {
+    char path[256];
+    realpath("bin/child", path);
+    if (execvp(path, args) == -1) {
       perror("Execv err");
     }
   }

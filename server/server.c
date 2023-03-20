@@ -145,6 +145,9 @@ int main() {
         }
         break;
       }
+      case HEARTBIT: {
+                break;
+      }
     }
   }
   zmq_close(puller);
