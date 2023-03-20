@@ -18,7 +18,8 @@ int main(int argc, char *argv[]) {
   imalive(id);
   char buffer[1000];
   char subcommand[1000], cmd[1000];
-  int size = 0, param_id, param_parent_id, param_sibling_id, param_son_id;
+  int size = 0, param_id, param_parent_id, param_sibling_id, param_son_id,
+      param_delay;
 
   clock_t timer_start, timer_stop;
 
@@ -51,9 +52,21 @@ int main(int argc, char *argv[]) {
           break;
         }
         case EXECUTE: {
-          sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
-          execute_handler(id, param_id, buffer, root_pusher, sibling_pusher,
-                          son_pusher, &timer_start, &timer_stop);
+          switch (COMMAND_TYPE) {
+            case 1: {
+              execute_sum_handler(buffer, id, root_pusher, sibling_pusher,
+                                  son_pusher);
+              break;
+            }
+            case 3: {
+              sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
+              execute_timer_handler(id, param_id, buffer, root_pusher,
+                                    sibling_pusher, son_pusher, &timer_start,
+                                    &timer_stop);
+              break;
+            }
+          }
+
           break;
         }
         case PING: {
@@ -77,6 +90,12 @@ int main(int argc, char *argv[]) {
           sscanf(buffer, "%s %d %d", cmd, &param_id, &param_sibling_id);
           kick_handler(param_id, param_sibling_id, &sibling_id, &sibling_pusher,
                        context);
+          break;
+        }
+        case HEARTBIT: {
+          sscanf(buffer, "%s %d", cmd, &param_delay);
+          heartbit_handler(root_pusher, param_delay, id, sibling_pusher,
+                           son_pusher);
           break;
         }
       }

@@ -16,9 +16,11 @@ extern const char ERR_PARENT_UNREACHABLE[];
 extern const char ERR_NOT_FOUND[];
 extern const char ERR_UNAVAILABLE[];
 extern const char ERR_REMOVE_ROOT[];
+extern const char ERR_HEARTBIT_RUNS[];
 
 extern const int PING_TIMEOUT;
 extern const int RECV_TIMEOUT;
 extern const int BUFFER_SIZE;
+extern const int COMMAND_TYPE;
 
 #endif  // CONFIG_MSG_H

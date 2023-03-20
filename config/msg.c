@@ -16,11 +16,18 @@ const char ERR_PARENT_UNREACHABLE[] = "Parent is unavailable";
 const char ERR_NOT_FOUND[] = "Not found";
 const char ERR_UNAVAILABLE[] = "Node is unavailable";
 const char ERR_REMOVE_ROOT[] = "Trying to remove root node - aborted";
+const char ERR_HEARTBIT_RUNS[] =
+    "Heartbit task already running - can`t create another";
 
 // * How long ping needs to wait for node to reply in seconds?
 const int PING_TIMEOUT = 1;
 // * How fast child should recheck thier puller for messages in seconds?
 // * 0 - no delay
-const int RECV_TIMEOUT = 0;
+const int RECV_TIMEOUT = 1;
+// * Command type to use in exec:
+// * 1) sum
+// // 2) dict
+// * 3) timer
+const int COMMAND_TYPE = 1;
 
 const int BUFFER_SIZE = 1000;

@@ -1,8 +1,9 @@
 #include "../commands.h"
 
-void execute_handler(int id, int param_id, char buffer[1000], void *root_pusher,
-                     void *sibling_pusher, void *son_pusher,
-                     clock_t *timer_start, clock_t *timer_stop) {
+void execute_timer_handler(int id, int param_id, char buffer[1000],
+                           void *root_pusher, void *sibling_pusher,
+                           void *son_pusher, clock_t *timer_start,
+                           clock_t *timer_stop) {
   char msg[100];
   if (param_id == id) {
     switch (solve_subcmd(buffer)) {

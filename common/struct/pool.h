@@ -2,6 +2,7 @@
 #define COMMON_STRUCT_POOL_H
 
 #include <assert.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
