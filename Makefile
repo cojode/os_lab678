@@ -13,9 +13,11 @@ all: clean bin/client bin/server
 	./bin/server
 
 bin/server:
+	mkdir -p bin
 	gcc $(SERVER) $(SRCS) -o $(BIN_SERVER) $(ZMQ_FLAGS) -g
 
 bin/client:
+	mkdir -p bin
 	gcc $(CLIENT) $(SRCS) -o $(BIN_CLIENT) $(ZMQ_FLAGS) -g
 
 clean:
