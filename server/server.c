@@ -13,8 +13,8 @@ int main() {
   // * Pusher - actively requesting socket
   // * In order to send message to other node, its connects to this node's
   // * address, holded by other node's puller, and transfer message to it
-  void *son_pusher = NULL;
-  int id = ROOT_ID, pid, son_id = -1;
+  void *tree_pusher = NULL;
+  int id = ROOT_ID, pid, tree_first_id = -1;
 
   Pool *pool = init_pool();
   pthread_t tid = 0;
@@ -37,44 +37,38 @@ int main() {
         break;
       }
       case CREATE: {
-        sscanf(buffer, "%s %d %d", cmd, &param_id, &param_parent_id);
-        switch (child_to_pool(pool, param_id, param_parent_id)) {
+        sscanf(buffer, "%s %d", cmd, &param_id);
+        if (param_id == ROOT_ID)
+          printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_ROOT_ID);
+        switch (child_to_pool(pool, param_id, buffer)) {
           case 0:
-            // ! ping
-            create_handler(ROOT_ID, param_id, param_parent_id, context,
-                           &son_pusher, &son_id, NULL, buffer, sizeof(buffer));
+            send_message(tree_pusher, buffer, sizeof(buffer));
             break;
           case 1:
             printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_ALREADY_EXISTS);
             break;
           case 2:
-            printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NO_PARENT);
+            register_node(-1, param_id);
+            tree_pusher = init_socket(context, param_id, ZMQ_PUSH);
+            tree_first_id = param_id;
+            printf("%s %s %d\n", ROOT_PREFIX, OK_PREFIX, param_id);
             break;
         }
         break;
       }
       case REMOVE: {
+        char drop_cmd_1[100];
+        char drop_cmd_2[100];
+        char child_cmd[100];
         sscanf(buffer, "%s %d", cmd, &param_id);
-        switch (child_from_pool(pool, param_id)) {
+        switch (child_from_pool(pool, param_id, drop_cmd_1, drop_cmd_2,
+                                child_cmd)) {
           case 0:
-            if (param_id == id) {
-              printf("%s", OK_PREFIX);
-              return 0;
-            }
-            if (is_parent(pool->root_node, ROOT_ID, param_id)) {
-              if (param_id == son_id) {
-                printf("Direct son\n");
-              } else {
-                printf("Indirect son\n");
-              }
-            } else {
-              printf("Not a son\n");
-              send_message(son_pusher, buffer, sizeof(buffer));
-              zmq_recv(puller, buffer, sizeof(buffer), 0);
-              sscanf(buffer, "%s %d", cmd, &pid);
-              printf("Killing %d\n", pid);
-              kill(pid, SIGKILL);
-            }
+            send_message(tree_pusher, drop_cmd_1, 100);
+            send_message(tree_pusher, drop_cmd_2, 100);
+            send_message(tree_pusher, child_cmd, 100);
+            printf("*killing*\n");
+            printf("%s %s\n", ROOT_PREFIX, OK_PREFIX);
             break;
           case 1:
             printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
@@ -86,108 +80,57 @@ int main() {
         break;
       }
       case EXECUTE: {
-        switch (COMMAND_TYPE) {
-          case 1: {
-            sscanf(buffer, "%s %d", cmd, &param_id);
-            if (!find_node_by_id(pool->root_node, param_id)) {
-              printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
-              break;
-            }
-            send_message(son_pusher, buffer, sizeof(buffer));
-            zmq_sleep(PING_TIMEOUT);
-            if (zmq_recv(puller, buffer, sizeof(buffer), ZMQ_DONTWAIT) != -1) {
-              printf("%s %s\n", ROOT_PREFIX, buffer);
-            } else {
-              printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_UNAVAILABLE);
-            }
-            break;
-          }
-          case 3: {
-            sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
-            if (!find_node_by_id(pool->root_node, param_id)) {
-              printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
-              break;
-            }
-            switch (solve_subcmd(buffer)) {
-              case UNKNOWN:
-                printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_UNKNOWN_CMD);
-                break;
-              default:
-                send_message(son_pusher, buffer, sizeof(buffer));
-                zmq_sleep(PING_TIMEOUT);
-                if (zmq_recv(puller, buffer, sizeof(buffer), ZMQ_DONTWAIT) !=
-                    -1) {
-                  printf("%s %s\n", ROOT_PREFIX, buffer);
-                } else {
-                  printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX,
-                         ERR_UNAVAILABLE);
-                }
-                break;
-            }
-            break;
-          }
+        sscanf(buffer, "%s %d %s", cmd, &param_id, subcommand);
+        if (!find_node(pool->root_node, param_id)) {
+          printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
+          break;
         }
+        send_message(tree_pusher, buffer, sizeof(buffer));
+        zmq_sleep(PING_TIMEOUT);
+        if (zmq_recv(puller, buffer, sizeof(buffer), ZMQ_DONTWAIT) != -1) {
+          printf("%s %s\n", ROOT_PREFIX, buffer);
+        } else {
+          printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_UNAVAILABLE);
+        }
+        break;
+      }
+      case LS: {
+        print_tree(pool->root_node, 0);
         break;
       }
       case PING: {
         sscanf(buffer, "%s %d", cmd, &param_id);
-        if (!find_node_by_id(pool->root_node, param_id)) {
+        if (!find_node(pool->root_node, param_id)) {
           printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
-          break;
-        }
-        printf(
-            "%s %s %d\n", ROOT_PREFIX, OK_PREFIX,
-            ping_handler(param_id, puller, son_pusher, buffer, sizeof(buffer)));
-        break;
-      }
-      case LS: {
-        print_tree(pool->root_node);
-        break;
-      }
-      case PINGALL: {
-        int no_response[100], len_nr = 0;
-        for (int i = 0; i < pool->nodes_count; ++i) {
-          char msg[100];
-          sprintf(msg, "ping %d", pool->nodes[i]);
-          if (!ping_handler(pool->nodes[i], puller, son_pusher, msg,
-                            sizeof(msg))) {
-            no_response[len_nr] = pool->nodes[i];
-            len_nr++;
-          }
-        }
-        if (len_nr) {
-          printf("%s %s", ROOT_PREFIX, OK_PREFIX);
-          for (int i = 0; i < len_nr; ++i) {
-            printf("%d", no_response[i]);
-            if (i != len_nr - 1) putchar(';');
-          }
-          putchar('\n');
         } else {
-          printf("%s %s -1\n", ROOT_PREFIX, OK_PREFIX);
+          printf("%s %s %d\n", ROOT_PREFIX, OK_PREFIX,
+                 ping_handler(param_id, puller, tree_pusher, buffer, 100));
         }
         break;
       }
-      case HEARTBIT: {
-        if (tid) {
-          printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_HEARTBIT_RUNS);
-        } else {
-          printf("%s %s\n", ROOT_PREFIX, OK_PREFIX);
-          send_message(son_pusher, buffer, sizeof(buffer));
-          sscanf(buffer, "%s %d", cmd, &param_delay);
-          heartbit_listener_args *args =
-              malloc(2 * sizeof(int) + sizeof(void *) + sizeof(int[1000]));
-          args->delay = param_delay;
-          args->puller = puller;
-          memcpy(args->nodes, pool->nodes, sizeof(pool->nodes));
-          args->nodes_count = pool->nodes_count;
-          pthread_create(&tid, NULL, heartbit_listener, args);
-        }
-        break;
-      }
+        //   case HEARTBIT: {
+        //     if (tid) {
+        //       printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX,
+        //       ERR_HEARTBIT_RUNS);
+        //     } else {
+        //       printf("%s %s\n", ROOT_PREFIX, OK_PREFIX);
+        //       send_message(son_pusher, buffer, sizeof(buffer));
+        //       sscanf(buffer, "%s %d", cmd, &param_delay);
+        //       heartbit_listener_args *args =
+        //           malloc(2 * sizeof(int) + sizeof(void *) +
+        //           sizeof(int[1000]));
+        //       args->delay = param_delay;
+        //       args->puller = puller;
+        //       memcpy(args->nodes, pool->nodes, sizeof(pool->nodes));
+        //       args->nodes_count = pool->nodes_count;
+        //       pthread_create(&tid, NULL, heartbit_listener, args);
+        //     }
+        //     break;
+        //   }
     }
   }
   zmq_close(puller);
-  if (son_pusher) zmq_close(son_pusher);
+  if (tree_pusher) zmq_close(tree_pusher);
   zmq_ctx_destroy(context);
   return 0;
 }

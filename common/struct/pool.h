@@ -19,7 +19,8 @@ typedef struct _pool {
 } Pool;
 
 Pool *init_pool();
-int child_to_pool(Pool *p, int child_id, int parent_id);
-int child_from_pool(Pool *p, int id);
+int child_to_pool(Pool *p, int id, char *cmd);
+int child_from_pool(Pool *p, int id, char *drop_cmd_1, char *drop_cmd_2,
+                    char *child_cmd);
 
 #endif  // COMMON_STRUCT_POOL_H

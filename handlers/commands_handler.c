@@ -9,12 +9,9 @@ int solve_cmd(char *buffer) {
   if (!strcmp("exec", cmd)) return EXECUTE;
   if (!strcmp("ping", cmd)) return PING;
   if (!strcmp("ls", cmd)) return LS;
-  if (!strcmp("sibling", cmd)) return SIBLING;
-  if (!strcmp("discard", cmd)) return DISCARD;
-  if (!strcmp("kick", cmd)) return KICK;
-  if (!strcmp("pingall", cmd)) return PINGALL;
-  if (!strcmp("heartbit", cmd)) return HEARTBIT;
-  if (!strcmp("sum", cmd)) return SUM;
+  if (!strcmp("child", cmd)) return CHILD;
+  if (!strcmp("kill", cmd)) return KILL;
+  if (!strcmp("drop", cmd)) return DROP;
   return UNKNOWN;
 }
 

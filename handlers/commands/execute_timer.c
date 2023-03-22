@@ -1,8 +1,8 @@
 #include "../commands.h"
 
 void execute_timer_handler(int id, int param_id, char buffer[1000],
-                           void *root_pusher, void *sibling_pusher,
-                           void *son_pusher, clock_t *timer_start,
+                           void *root_pusher, void *left_pusher,
+                           void *right_pusher, clock_t *timer_start,
                            clock_t *timer_stop) {
   char msg[100];
   if (param_id == id) {
@@ -24,6 +24,6 @@ void execute_timer_handler(int id, int param_id, char buffer[1000],
         break;
     }
   } else {
-    pass_cmd_down(sibling_pusher, son_pusher, buffer, 1000);
+    pass_cmd_down(left_pusher, right_pusher, buffer, 1000);
   }
 }

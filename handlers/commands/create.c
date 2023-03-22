@@ -2,21 +2,22 @@
 
 const char *CLIENT_PATH = "../../bin/child";
 
-void create_handler(int id, int child_id, int param_parent_id, void *context,
-                    void **son_pusher, int *son_id, void *sibling_pusher,
+void create_handler(int id, int child_id, int param_parent_id,
+                    int param_is_left, void *context, void **left_pusher,
+                    int *left_id, void **right_pusher, int *right_id,
                     char *buffer, size_t size) {
   if (param_parent_id == id) {
     register_node(param_parent_id, child_id);
-    if (*son_pusher) {
-      char msg[100];
-      sprintf(msg, "sibling %d", child_id);
-      send_message(*son_pusher, msg, sizeof(msg));
+    printf("%s\n", buffer);
+    if (param_is_left) {
+      *left_pusher = init_socket(context, child_id, ZMQ_PUSH);
+      *left_id = child_id;
     } else {
-      *son_pusher = init_socket(context, child_id, ZMQ_PUSH);
-      if (son_id) *son_id = child_id;
+      *right_pusher = init_socket(context, child_id, ZMQ_PUSH);
+      *right_id = child_id;
     }
   } else {
-    pass_cmd_down(sibling_pusher, *son_pusher, buffer, size);
+    pass_cmd_down(*left_pusher, *right_pusher, buffer, size);
   }
 }
 

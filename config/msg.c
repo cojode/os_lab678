@@ -20,15 +20,19 @@ const char ERR_HEARTBIT_RUNS[] =
     "Heartbit task already running - can`t create another";
 const char ERR_SUM_BAD_ARGS[] =
     "Bad arguments: wrong number of ints or bad ints";
-// * How long ping needs to wait for node to reply in seconds?
+const char ERR_ROOT_ID[] = "You can't use root id for new nodes";
+
+// * How long ping needs to wait for node reply in seconds?
 const int PING_TIMEOUT = 1;
+
 // * How fast child should recheck thier puller for messages in seconds?
-// * 0 - no delay
+// * 0 - no delay (considerable impact on system)
 const int RECV_TIMEOUT = 1;
+
 // * Command type to use in exec:
 // * 1) sum
 // // 2) dict
 // * 3) timer
-const int COMMAND_TYPE = 1;
+const int COMMAND_TYPE = 3;
 
 const int BUFFER_SIZE = 1000;

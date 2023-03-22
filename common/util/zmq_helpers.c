@@ -33,8 +33,8 @@ int send_message(void *pusher, char *buffer, size_t size) {
   return 1;
 }
 
-void pass_cmd_down(void *sibling_pusher, void *son_pusher, char *buffer,
+void pass_cmd_down(void *left_pusher, void *right_pusher, char *buffer,
                    size_t size) {
-  if (sibling_pusher) send_message(sibling_pusher, buffer, size);
-  if (son_pusher) send_message(son_pusher, buffer, size);
+  if (left_pusher) send_message(left_pusher, buffer, size);
+  if (right_pusher) send_message(right_pusher, buffer, size);
 }

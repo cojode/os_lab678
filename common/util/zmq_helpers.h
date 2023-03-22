@@ -19,7 +19,7 @@ extern const char SOCKET_PATTERN[];
 char *solve_address(int id);
 void *init_socket(void *context, int id, int type);
 int send_message(void *pusher, char *buffer, size_t size);
-void pass_cmd_down(void *sibling_pusher, void *son_pusher, char *buffer,
+void pass_cmd_down(void *left_pusher, void *right_pusher, char *buffer,
                    size_t size);
 
 #endif  // UTIL_ZMQ_HELPERS

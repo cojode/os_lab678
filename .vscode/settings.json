@@ -12,7 +12,9 @@
         "array": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "functional": "c"
+        "functional": "c",
+        "list": "c",
+        "unordered_map": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

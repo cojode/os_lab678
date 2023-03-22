@@ -1,9 +1,7 @@
 #include "../commands.h"
 
-int sum_from_str(char *buffer);
-
 void execute_sum_handler(char *buffer, int id, void *root_pusher,
-                         void *sibling_pusher, void *son_pusher) {
+                         void *left_pusher, void *right_pusher) {
   char cmd[100], *line = malloc(sizeof(char) * 1000), *line_ptr;
   char msg[100];
   int param_id, param_n, pos, num = 100500, result = 0, offset = 0;
@@ -19,10 +17,10 @@ void execute_sum_handler(char *buffer, int id, void *root_pusher,
       pos += offset;
     }
 
-    sprintf(msg, "%d", result);
+    sprintf(msg, "%d:%d", id, result);
     send_message(root_pusher, msg, 100);
   } else {
-    pass_cmd_down(sibling_pusher, son_pusher, buffer, 1000);
+    pass_cmd_down(left_pusher, right_pusher, buffer, 1000);
   }
   free(line);
 }
