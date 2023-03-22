@@ -30,14 +30,18 @@ int main(int argc, char *argv[]) {
       printf("[#%d]", id);
       printf("Recieved command: %s\n", buffer);
       switch (solve_cmd(buffer)) {
-        case EXIT: {
-          printf("%s %s\n", ROOT_PREFIX, MSG_EXIT_SIGNAL_START);
-          printf("%s", MSG_EXIT_SIGNAL_COMPLETE);
-          return 1;
-        }
         case UNKNOWN: {
           printf(NODE_PREFIX, id);
           printf("%s %s\n", ERR_PREFIX, ERR_UNKNOWN_CMD);
+          break;
+        }
+        case REMOVE: {
+          sscanf(buffer, "%s %d", cmd, &param_id);
+          if (param_id == id) {
+            char msg[100];
+            sprintf(msg, "kill %d", getpid());
+            send_message(root_pusher, msg, sizeof(msg));
+          }
           break;
         }
         case CREATE: {

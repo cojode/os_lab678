@@ -67,8 +67,13 @@ int main() {
             send_message(tree_pusher, drop_cmd_1, 100);
             send_message(tree_pusher, drop_cmd_2, 100);
             send_message(tree_pusher, child_cmd, 100);
-            printf("*killing*\n");
+            void *direct_pusher = init_socket(context, param_id, ZMQ_PUSH);
+            send_message(direct_pusher, buffer, 100);
+            zmq_recv(puller, buffer, sizeof(buffer), 0);
+            sscanf(buffer, "%s %d", cmd, &pid);
+            kill(pid, SIGKILL);
             printf("%s %s\n", ROOT_PREFIX, OK_PREFIX);
+            if (direct_pusher) zmq_close(direct_pusher);
             break;
           case 1:
             printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX, ERR_NOT_FOUND);
@@ -108,25 +113,6 @@ int main() {
         }
         break;
       }
-        //   case HEARTBIT: {
-        //     if (tid) {
-        //       printf("%s %s %s\n", ROOT_PREFIX, ERR_PREFIX,
-        //       ERR_HEARTBIT_RUNS);
-        //     } else {
-        //       printf("%s %s\n", ROOT_PREFIX, OK_PREFIX);
-        //       send_message(son_pusher, buffer, sizeof(buffer));
-        //       sscanf(buffer, "%s %d", cmd, &param_delay);
-        //       heartbit_listener_args *args =
-        //           malloc(2 * sizeof(int) + sizeof(void *) +
-        //           sizeof(int[1000]));
-        //       args->delay = param_delay;
-        //       args->puller = puller;
-        //       memcpy(args->nodes, pool->nodes, sizeof(pool->nodes));
-        //       args->nodes_count = pool->nodes_count;
-        //       pthread_create(&tid, NULL, heartbit_listener, args);
-        //     }
-        //     break;
-        //   }
     }
   }
   zmq_close(puller);

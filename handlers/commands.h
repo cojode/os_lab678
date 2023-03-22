@@ -50,6 +50,8 @@ void drop_handler(int param_id, int param_drop_id, int param_repl_id, int id,
                   int *left_id, int *right_id, void **left_pusher,
                   void **right_pusher, void *root_pusher, void *context);
 int register_node(int parent_id, int child_id);
+void remove_handler(int id, int sibling_id, int son_id, int param_id,
+                    void *left_pusher, void *right_pusher, void *root_pusher);
 int solve_cmd(char *buffer);
 int solve_subcmd(char *buffer);
 
